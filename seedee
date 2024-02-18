@@ -1,8 +1,8 @@
 #===============================================================
-# cdhist:
+# seedee:
 #   shell `cd`` command extensions for bash/ksh/zsh/ash
 #   dir history / subdir explore
-#   . ./cdhist
+#   . ./seedee
 #   
 #   cd <dir> : change dir and push directory to CDHISTORYFILE
 #   cd -- [-a] [<pat> ...] : display/choose in dir history
@@ -22,8 +22,8 @@
 #   CDNBDIRS      : default to 10 (nbdir history to display)
 #   CDINITDIRS    : add directories if $CDHISTORYFILE is empty
 #   CDPOWERLINE   : y or n powerline symbol usage
-#   CDHISTBIND    : key to bind cdhist to Esc-key (Alt-key) default "!"
-#   CDLBIND       : key to bind cdlocate to Esc-key (Alt-key) default "*"
+#   CDHISTBIND    : key to bind cdhist to Esc-key (Alt-key) default "Shift-Down Ctrl-Down"
+#   CDLBIND       : key to bind cdlocate to Esc-key (Alt-key) default "Ctrl-Shift-Down"
 #================================================================
 
 unalias cd 2>/dev/null

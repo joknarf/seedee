@@ -1,4 +1,4 @@
-# cdhist
+# seedee
 
 Navigate interactively through directories / history of visited directories using arrow keys from command line.  
 Compatibility : bash / ksh / zsh  
@@ -43,7 +43,7 @@ putting on command line : `work` and hitting <kbd>Shift</kbd>+<kbd>⇧</kbd> wil
 </div>
 
 * using bash, `<tab>` cd auto completion can be enabled for `cd` command:
-  * setting env variable `CDCOMPLETE=y` before sourcing `cdhist`
+  * setting env variable `CDCOMPLETE=y` before sourcing `seedee`
 
 ## keys when in menu
 
@@ -71,7 +71,7 @@ putting on command line : `work` and hitting <kbd>Shift</kbd>+<kbd>⇧</kbd> wil
 # usage
 
 ```
-$ . ./cdhist
+$ . ./seedee
 $ cd <dir>
 => change to <dir> and add <dir> to $CDHISTFILE
 $ cd --
