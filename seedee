@@ -209,7 +209,7 @@ function cdhist {
 }
 # cd autocompletion
 _cdhist_cd() {
-  typeset row col var dir="${COMP_WORDS[1]}" IFS
+  typeset row col var dir="${COMP_WORDS[1]}" IFS=$' \t\n'
   # use bash_completion _cd or limited cdcomplete
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
@@ -494,7 +494,7 @@ function _select
 
 function _items_split
 {
-  typeset filter="$1" item IFS
+  typeset filter="$1" item IFS=$' \t\n'
 
   [ "$filter" ] && {
     _nsel=""
