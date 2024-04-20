@@ -370,27 +370,27 @@ function _cdbind {
     zle -N _cdlw
     zle -N _cdlastw
     zle -N _cdupw
-    for k in ${=CDHISTBIND};do
+    for k in $(echo $CDHISTBIND);do
       bindkey -M vicmd "$k" _cdhistw
       bindkey -M viins "$k" _cdhistw
       bindkey -M emacs "$k" _cdhistw
     done
-    for k in ${=CDLASTBIND};do
+    for k in $(echo $CDLASTBIND);do
       bindkey -M vicmd "$k" _cdlastw
       bindkey -M viins "$k" _cdlastw
       bindkey -M emacs "$k" _cdlastw
     done
-    for k in ${=CDDOTBIND};do
+    for k in $(echo $CDDOTBIND);do
       bindkey -M vicmd "$k" _cddotw
       bindkey -M viins "$k" _cddotw
       bindkey -M emacs "$k" _cddotw
     done
-    for k in ${=CDUPBIND};do
+    for k in $(echo $CDUPBIND);do
       bindkey -M vicmd "$k" _cdupw
       bindkey -M viins "$k" _cdupw
       bindkey -M emacs "$k" _cdupw
     done
-    for k in ${=CDLBIND};do
+    for k in $(echo $CDLBIND);do
       bindkey -M vicmd "$k" _cdlw
       bindkey -M viins "$k" _cdlw
       bindkey -M emacs "$k" _cdlw
@@ -505,7 +505,7 @@ function _items_split
   _nsel=1
   IFS=$'\n'
   # ZSH array index starts at 1
-  [ "$ZSH_VERSION" ] && _aitems=( ${=_items} ) || { _aitems=( _ $_items ); unset '_aitems[0]'; }
+  [ "$ZSH_VERSION" ] && _aitems=( $(echo $_items) ) || { _aitems=( _ $_items ); unset '_aitems[0]'; }
   IFS=$' \t\n'
 }
 
