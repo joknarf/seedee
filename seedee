@@ -278,7 +278,16 @@ _cdhist_cd() {
   IFS=$' \t\n'
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
-  [ ! "${COMPREPLY[0]}" ] && { compopt +o filenames -o nospace 2>/dev/null; COMPREPLY=( "$word" ); return 124; }
+  [ ! "${COMPREPLY[0]}" ] && {
+    compopt +o filenames -o nospace 2>/dev/null; 
+    [ "${BASH_VERSION%%.*}" -ge 5 ] && {
+      COMPREPLY=( "$word" )
+      return 124;
+    } || {
+      COMPREPLY=( " $word" )
+      return 0;
+    }
+  }
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
   COMPREPLY[0]="${COMPREPLY[0]%/}/"
   [[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
