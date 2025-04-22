@@ -183,21 +183,25 @@ function cdhist {
   }
 
   function _cdhistw {
+    BUFFER=$(eval echo "$BUFFER")
     BUFFER="$(_cdpr=1 cdhist "$BUFFER")"
     _zle_do
   }
 
   function _cddotw {
+    BUFFER=$(eval echo "$BUFFER")
     BUFFER="$(_cdpr=1 cdhist + "$BUFFER")"
     _zle_do
   }
 
   function _cdlw {
+    BUFFER=$(eval echo "$BUFFER")
     BUFFER="$(_cdpr=1 cdhist -l "$BUFFER")"
     _zle_do
   }
 
   function _cdlastw {
+    BUFFER=$(eval echo "$BUFFER")
     BUFFER="$(_cdpr=1 cdhist - "$BUFFER")"
     _zle_do
   }
