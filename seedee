@@ -209,17 +209,21 @@ function cdhist {
 }
 [ "$BASH" ] && {
   function _cdhistb {
+    READLINE_LINE=$(eval echo "${READLINE_LINE}")
     READLINE_LINE="$(_cdpr=1 cdhist "$READLINE_LINE")"
   }
   function _cddotb {
+    READLINE_LINE=$(eval echo "${READLINE_LINE}")
     READLINE_LINE="$(_cdpr=1 cdhist + "$READLINE_LINE")"
   }
 
   function _cdlb {
+    READLINE_LINE=$(eval echo "${READLINE_LINE}")
     READLINE_LINE="$(_cdpr=1 cdhist -l "$READLINE_LINE")"
   }
 
   function _cdlastb {
+    READLINE_LINE=$(eval echo "${READLINE_LINE}")
     READLINE_LINE="$(_cdpr=1 cdhist - "$READLINE_LINE")"
   }
 
@@ -325,35 +329,31 @@ function _cdbind {
 
   [ "$BASH" ] && {
 
-    bind -m vi-insert '"\C-xx": shell-expand-line'
-    bind -m vi-command '"\C-xx": shell-expand-line'
-    bind -m emacs-standard '"\C-xx": shell-expand-line'
-
     bind -m vi-insert -x '"\C-xa": _cdhistb'
     bind -m vi-command -x '"\C-xa": _cdhistb'
     bind -m emacs-standard -x '"\C-xa": _cdhistb'
     for k in $CDHISTBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xx\C-xa\015"'
-      bind -m vi-command '"'"$k"'": "\C-xx\C-xa\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xx\C-xa\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xa\015"'
+      bind -m vi-command '"'"$k"'": "\C-xa\015"'
+      bind -m emacs-standard '"'"$k"'": "\C-xa\015"'
     done
 
     bind -m vi-insert -x '"\C-xb": _cdlastb'
     bind -m vi-command -x '"\C-xb": _cdlastb'
     bind -m emacs-standard -x '"\C-xb": _cdlastb'
     for k in $CDLASTBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xx\C-xb\015"'
-      bind -m vi-command '"'"$k"'": "\C-xx\C-xb\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xx\C-xb\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xb\015"'
+      bind -m vi-command '"'"$k"'": "\C-xb\015"'
+      bind -m emacs-standard '"'"$k"'": "\C-xb\015"'
     done
 
     bind -m vi-insert -x '"\C-xc": _cddotb'
     bind -m vi-command -x '"\C-xc": _cddotb'
     bind -m emacs-standard -x '"\C-xc": _cddotb'
     for k in $CDDOTBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xx\C-xc\015"'
-      bind -m vi-command '"'"$k"'": "\C-xx\C-xc\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xx\C-xc\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xc\015"'
+      bind -m vi-command '"'"$k"'": "\C-xc\015"'
+      bind -m emacs-standard '"'"$k"'": "\C-xc\015"'
     done
 
     for k in $CDUPBIND ;do
@@ -366,9 +366,9 @@ function _cdbind {
     bind -m vi-command -x '"\C-xd": _cddlb'
     bind -m emacs-standard -x '"\C-xd": _cdlb'
     for k in $CDLBIND ;do
-      bind -m vi-insert '"'"$k"'": "\C-xx\C-xd\015"'
-      bind -m vi-command '"'"$k"'": "\C-xx\C-xd\015"'
-      bind -m emacs-standard '"'"$k"'": "\C-xx\C-xd\015"'
+      bind -m vi-insert '"'"$k"'": "\C-xd\015"'
+      bind -m vi-command '"'"$k"'": "\C-xd\015"'
+      bind -m emacs-standard '"'"$k"'": "\C-xd\015"'
     done
 
   }
