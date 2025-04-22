@@ -183,26 +183,22 @@ function cdhist {
   }
 
   function _cdhistw {
-    BUFFER=$(eval echo "$BUFFER")
-    BUFFER="$(_cdpr=1 cdhist "$BUFFER")"
+    BUFFER="$(_cdpr=1 cdhist $(eval printf '"%s "' "$BUFFER"))"
     _zle_do
   }
 
   function _cddotw {
-    BUFFER=$(eval echo "$BUFFER")
-    BUFFER="$(_cdpr=1 cdhist + "$BUFFER")"
+    BUFFER="$(_cdpr=1 cdhist + $(eval printf '"%s "' "$BUFFER"))"
     _zle_do
   }
 
   function _cdlw {
-    BUFFER=$(eval echo "$BUFFER")
-    BUFFER="$(_cdpr=1 cdhist -l "$BUFFER")"
+    BUFFER="$(_cdpr=1 cdhist -l $(eval printf '"%s "' "$BUFFER"))"
     _zle_do
   }
 
   function _cdlastw {
-    BUFFER=$(eval echo "$BUFFER")
-    BUFFER="$(_cdpr=1 cdhist - "$BUFFER")"
+    BUFFER="$(_cdpr=1 cdhist - $(eval printf '"%s "' "$BUFFER"))"
     _zle_do
   }
 
@@ -213,22 +209,19 @@ function cdhist {
 }
 [ "$BASH" ] && {
   function _cdhistb {
-    READLINE_LINE=$(eval echo "${READLINE_LINE}")
-    READLINE_LINE="$(_cdpr=1 cdhist "$READLINE_LINE")"
+    READLINE_LINE="$(_cdpr=1 cdhist $(eval printf '"%s "' "${READLINE_LINE}"))"
   }
+
   function _cddotb {
-    READLINE_LINE=$(eval echo "${READLINE_LINE}")
-    READLINE_LINE="$(_cdpr=1 cdhist + "$READLINE_LINE")"
+    READLINE_LINE="$(_cdpr=1 cdhist + $(eval printf '"%s "' "${READLINE_LINE}"))"
   }
 
   function _cdlb {
-    READLINE_LINE=$(eval echo "${READLINE_LINE}")
-    READLINE_LINE="$(_cdpr=1 cdhist -l "$READLINE_LINE")"
+    READLINE_LINE="$(_cdpr=1 cdhist -l $(eval printf '"%s "' "${READLINE_LINE}"))"
   }
 
   function _cdlastb {
-    READLINE_LINE=$(eval echo "${READLINE_LINE}")
-    READLINE_LINE="$(_cdpr=1 cdhist - "$READLINE_LINE")"
+    READLINE_LINE="$(_cdpr=1 cdhist - $(eval printf '"%s "' "${READLINE_LINE}"))"
   }
 
   function _cdupb {
