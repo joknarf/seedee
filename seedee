@@ -230,27 +230,29 @@ function cdhist {
 
 }
 # cd autocompletion
+# expand arg without alias expansion
 _cdhist_cd() {
-  typeset row col var dir="${COMP_WORDS[1]}" IFS=$' \t\n'
+  typeset row col var dir=$(eval printf %s "${COMP_WORDS[1]}") IFS=$' \t\n'
   # use bash_completion _cd or limited cdcomplete
+  [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
+  COMP_WORDS[1]="$dir"
+  COMP_LINE=$(printf '%s ' "${COMP_WORDS[@]}")
+  COMP_LINE="${COMP_LINE% }"
+  COMP_POINT=${#COMP_LINE}
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    #[[ "$dir" = \~* ]] && dir="$(IFS=;eval printf %s '~'$(printf %q ${dir#\~}))"
-    #[[ "$dir" = \$[A-Za-z0-9_]* ]] && dir="$(IFS=;eval printf %s '$'$(printf %q ${dir#\$}))"
-    dir=$(eval printf %s "$dir")
     COMP_WORDS=( cd "$dir" )
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
     [[ "$dir" = */* ]] && dir="${dir%/*}" || dir='.'
     : ${dir:=/}
-#    echo "dir: $dir word: $word"
     IFS=$'\n'
     COMPREPLY=( $(\cd "$dir" >/dev/null 2>&1 && compgen -d -- "$word") ) 
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
     dir="${dir%/}/"
     [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
-    [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
+    # [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
     COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
     IFS=$' \t\n'
     [ "${#COMPREPLY[@]}" = 1 ] && {
@@ -259,6 +261,7 @@ _cdhist_cd() {
     }
     COMP_WORDS=( cd "$dir$word" )
   }
+  [[ "${COMPREPLY[0]}/" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
   [ ${#COMPREPLY[@]} = 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   [ ${#COMPREPLY[@]} = 0 ] && {
