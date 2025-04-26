@@ -232,7 +232,7 @@ function cdhist {
 # cd autocompletion
 # expand arg without alias expansion
 _cdhist_cd() {
-  typeset row col var dir=$(eval printf %s "${COMP_WORDS[1]}") IFS=$' \t\n'
+  typeset row col var word="${COMP_WORDS[1]}" dir=$(eval printf %s "${COMP_WORDS[1]}") IFS=$' \t\n' longword
   # use bash_completion _cd or limited cdcomplete
   [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
   COMP_WORDS[1]="$dir"
@@ -273,24 +273,25 @@ _cdhist_cd() {
     tput cuf $((col-1)) >&2
     return 1
   }
-  word="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
+  # longest common prefix
+  longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
-  # longest common prefix
   IFS=$'\n'
-  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$word")" )
+  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$longword")" )
   IFS=$' \t\n'
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && {
-    compopt +o filenames -o nospace 2>/dev/null; 
-    [ "${BASH_VERSION%%.*}" -ge 5 ] && {
-      COMPREPLY=()
-      return 1;
-    } || {
-      COMPREPLY=( " $word" )
-      return 0;
-    }
+    compopt +o filenames -o nospace 2>/dev/null
+    [ "$word" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
+    # bash 5+ : COMPREPLY must be empty else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
+    COMPREPLY=()
+    [ "${BASH_VERSION%%.*}" -ge 5 ] && return 124
+    # bash <5 : COMPREPLY must change else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
+    COMPREPLY=( " $word" )
+    [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
+    return 0
   }
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
   COMPREPLY[0]="${COMPREPLY[0]%/}/"
