@@ -242,6 +242,7 @@ _cdhist_cd() {
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
+    dir=${dir/\~/$HOME}
     COMP_WORDS=( cd "$dir" )
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
@@ -252,7 +253,7 @@ _cdhist_cd() {
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
     dir="${dir%/}/"
     [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
-    # [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
+    [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
     COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
     IFS=$' \t\n'
     [ "${#COMPREPLY[@]}" = 1 ] && {
