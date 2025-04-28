@@ -232,10 +232,10 @@ function cdhist {
 # cd autocompletion
 # expand arg without alias expansion
 _cdhist_cd() {
-  typeset row col var word="${COMP_WORDS[1]}" dir=$(eval printf %s "${COMP_WORDS[1]}") IFS=$' \t\n' longword
+  typeset row col var word="$2" dir=$(eval printf %s "$2") IFS=$' \t\n' longword
   # use bash_completion _cd or limited cdcomplete
   [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
-  COMP_WORDS[1]="$dir"
+  COMP_WORDS=( cd "$dir" )
   COMP_LINE=$(printf '%s ' "${COMP_WORDS[@]}")
   COMP_LINE="${COMP_LINE% }"
   COMP_POINT=${#COMP_LINE}
@@ -279,18 +279,18 @@ _cdhist_cd() {
   printf "\r" >&2
   IFS=$'\n'
   COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$longword")" )
+  echo "${COMPREPLY[@]}" >/tmp/rep
   IFS=$' \t\n'
   #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && {
     compopt +o filenames -o nospace 2>/dev/null
-    [ "${COMP_WORDS[1]}" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
+    [ "$2" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
     # bash 5+ : COMPREPLY must be empty else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
     COMPREPLY=()
     [ "${BASH_VERSION%%.*}" -ge 5 ] && return 124
     # bash <5 : COMPREPLY must change else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
-    COMPREPLY=( " $word" )
-    [ "$COMP_CWORD" = -1 ] && COMPREPLY=()
+    [ "${BASH_VERSION%%.*}" = 4 ] && COMPREPLY=( " $2" ) || COMPREPLY=( "$2%" )
     return 0
   }
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
