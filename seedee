@@ -234,7 +234,7 @@ function cdhist {
 _cdhist_cd() {
   typeset row col var word="$2" dir=$(eval printf %s "$2") IFS=$' \t\n' longword
   # use bash_completion _cd or limited cdcomplete
-  [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
+  #[[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
   COMP_WORDS=( cd "$dir" )
   COMP_LINE=$(printf '%s ' "${COMP_WORDS[@]}")
   COMP_LINE="${COMP_LINE% }"
@@ -253,7 +253,7 @@ _cdhist_cd() {
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
     dir="${dir%/}/"
     [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
-    [[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
+    #[[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
     COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
     IFS=$' \t\n'
     [ "${#COMPREPLY[@]}" = 1 ] && {
@@ -262,7 +262,7 @@ _cdhist_cd() {
     }
     COMP_WORDS=( cd "$dir$word" )
   }
-  [[ "${COMPREPLY[0]}/" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
+  #[[ "${COMPREPLY[0]}/" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
   [ ${#COMPREPLY[@]} = 1 ] && return
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   [ ${#COMPREPLY[@]} = 0 ] && {
@@ -295,7 +295,7 @@ _cdhist_cd() {
   }
   COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
   COMPREPLY[0]="${COMPREPLY[0]%/}/"
-  [[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
+  #[[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
   #tput el >&2
 }
 
