@@ -284,7 +284,7 @@ _cdhist_cd() {
   tput cuf $((col-1)) >&2
   [ ! "${COMPREPLY[0]}" ] && {
     compopt +o filenames -o nospace 2>/dev/null
-    [ "$word" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
+    [ "${COMP_WORDS[1]}" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
     # bash 5+ : COMPREPLY must be empty else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
     COMPREPLY=()
     [ "${BASH_VERSION%%.*}" -ge 5 ] && return 124
