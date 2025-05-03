@@ -234,7 +234,7 @@ function cdhist {
 _cdhist_cd() {
   typeset row col var word="$2" dir=$(eval printf %s "$2") IFS=$' \t\n' longword
   # use bash_completion _cd or limited cdcomplete
-  #[[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
+  dir="${dir/#$HOME/\~}"
   COMP_WORDS=( cd "$dir" )
   COMP_LINE=$(printf '%s ' "${COMP_WORDS[@]}")
   COMP_LINE="${COMP_LINE% }"
@@ -242,7 +242,7 @@ _cdhist_cd() {
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    dir=${dir/\~/$HOME}
+    dir=${dir/#\~/$HOME}
     COMP_WORDS=( cd "$dir" )
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
@@ -250,20 +250,19 @@ _cdhist_cd() {
     : ${dir:=/}
     IFS=$'\n'
     COMPREPLY=( $(\cd "$dir" >/dev/null 2>&1 && compgen -d -- "$word") ) 
+    IFS=$' \t\n'
     [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
     dir="${dir%/}/"
     [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
-    #[[ "$dir" = $HOME/* ]] && dir=${dir/$HOME/\~}
-    COMPREPLY=( $(printf "$dir%s\n" "${COMPREPLY[@]}") )
-    IFS=$' \t\n'
-    [ "${#COMPREPLY[@]}" = 1 ] && {
-      COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
-      COMPREPLY[0]="${COMPREPLY[0]%/}/"
-    }
-    COMP_WORDS=( cd "$dir$word" )
+    COMPREPLY=( "${COMPREPLY[@]/#/$dir}" )
+    # COMP_WORDS=( cd "$dir$word" )
   }
-  #[[ "${COMPREPLY[0]}/" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
-  [ ${#COMPREPLY[@]} = 1 ] && return
+  [ ${#COMPREPLY[@]} = 1 ] && {
+    COMPREPLY[0]="${COMPREPLY[0]/#\~/$HOME}"
+    COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
+    COMPREPLY[0]="${COMPREPLY[0]%/}/"
+    return 0
+  }
   IFS='[;' read -rsd R -p $'\e[6n' _ row col
   [ ${#COMPREPLY[@]} = 0 ] && {
     printf '\nNot found !\r'
@@ -273,30 +272,31 @@ _cdhist_cd() {
     tput cuf $((col-1)) >&2
     return 1
   }
+  COMPREPLY=( "${COMPREPLY[@]/#$HOME/\~}" )
   # longest common prefix
   longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
   IFS=$'\n'
   COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$longword")" )
-  echo "${COMPREPLY[@]}" >/tmp/rep
   IFS=$' \t\n'
-  #kill -WINCH $$ # force redraw prompt
   tput cuf $((col-1)) >&2
-  [ ! "${COMPREPLY[0]}" ] && {
-    compopt +o filenames -o nospace 2>/dev/null
-    [ "$2" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
-    # bash 5+ : COMPREPLY must be empty else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
-    COMPREPLY=()
-    [ "${BASH_VERSION%%.*}" -ge 5 ] && return 124
-    # bash <5 : COMPREPLY must change else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
-    [ "${BASH_VERSION%%.*}" = 4 ] && COMPREPLY=( " $2" ) || COMPREPLY=( "$2%" )
+  [ "${COMPREPLY[0]}" ] && {
+    COMPREPLY[0]="${COMPREPLY[0]/#\~/$HOME}"
+    COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
+    COMPREPLY[0]="${COMPREPLY[0]%/}/"
     return 0
   }
-  COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
-  COMPREPLY[0]="${COMPREPLY[0]%/}/"
-  #[[ "${COMPREPLY[0]}" = $HOME/* ]] && COMPREPLY[0]=${COMPREPLY[0]/$HOME/\~}
-  #tput el >&2
+  longword=${longword/#\~/$HOME}
+  compopt +o filenames -o nospace 2>/dev/null
+  [ "$2" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
+  # bash 5+ : COMPREPLY must be empty else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
+  COMPREPLY=()
+  [ "${BASH_VERSION%%.*}" -ge 5 ] && return 124
+  # bash <5 : COMPREPLY must change else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
+  [ "${BASH_VERSION%%.*}" = 4 ] && COMPREPLY=( " $2" ) || COMPREPLY=( "$2%" )
+  return 0
+
 }
 
 cdcomplete() {
@@ -543,7 +543,8 @@ function _showmenu
     [[ $i -le $max ]] || break
     icon=''
     [ "$_sel_option" = filenames ] && {
-      [[ "$item" = \~/* ]] && fpath="$HOME/"${item#\~/} || fpath="$item"
+      # [[ "$item" = \~/* ]] && fpath="$HOME/"${item#\~/} || fpath="$item"
+      fpath="${item/#\~/$HOME}"
       if [ -d "$fpath" ] ;then icon="$SELECTOR_FOLDER_ICON "
       else [ -e "$fpath" -o -L "$fpath" ] && icon="$SELECTOR_FILE_ICON ";fi
     }
