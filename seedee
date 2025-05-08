@@ -53,7 +53,6 @@ function cdpush {
     -)  [ "$2" ] && { cdhist "$@"; return $?; };;
     +)  shift; cdsub 1 . "$@"; return $?;;
     ++) shift; cdsub 4 . "$@"; return $?;;
-    "~"|"~/"*) [ "$_cdpr" ] && set -- "$HOME"${1#\~};;
   esac
   dir="$1"
   [ "$_cdpr" ] && {
@@ -83,12 +82,11 @@ function cdselect
     [ "$BASH" ] && [ "$_cdpr" = 1 ] && tput el >&2
     printf "\n" >&2
   }
-  echo "$2" >/tmp/items
   dir="$(selector -P "$CDPOWERLINE" -m "$nb" -p cd -k _cd_keys -F "$filter" -i "$2")"
-  echo "$dir" >/tmp/dir
   [ "$_cdpr" ] && {
     tput cuu1 >&2
   }
+  [[ "$dir"= \~ || "$dir" = \~/* ]] && dir="$HOME"${dir#\~}
   [ "$dir" ] && cdpush "$dir"
 }
 
@@ -275,7 +273,6 @@ _cdhist_cd() {
     return 1
   }
   COMPREPLY=( "${COMPREPLY[@]/#$hs/$ts}" )
-  echo "${COMPREPLY[@]}" >/tmp/all
   # longest common prefix
   longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
@@ -284,7 +281,6 @@ _cdhist_cd() {
   COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$longword")" )
   IFS=$' \t\n'
   tput cuf $((col-1)) >&2
-  echo "${COMPREPLY[0]}" >/tmp/o
   [ "${COMPREPLY[0]}" ] && {
     COMPREPLY[0]="${COMPREPLY[0]/#$ts/$hs}"
     COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
