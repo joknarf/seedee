@@ -53,16 +53,15 @@ function cdpush {
     -)  [ "$2" ] && { cdhist "$@"; return $?; };;
     +)  shift; cdsub 1 . "$@"; return $?;;
     ++) shift; cdsub 4 . "$@"; return $?;;
-    "~"|"~/"*) set -- "$HOME"${1#\~};;
+    "~"|"~/"*) [ "$_cdpr" ] && set -- "$HOME"${1#\~};;
   esac
   dir="$1"
   [ "$_cdpr" ] && {
     [ "$_cdpr" = 1 ] && printf "cd %q" "$dir"
     [ "$_cdpr" = 2 ] && printf "$dir"
     return 0
-  } || {
-    \cd "$@" || return $?
   }
+  \cd "$@" || return $?
   printf "%s\n" "$PWD" >"$cdhf.tmp"
   grep -Fxv -- "$PWD" "$cdhf" >>"$cdhf.tmp"
   [ -s "$cdhf.tmp" ] && \mv "$cdhf.tmp" "$cdhf"
@@ -174,7 +173,7 @@ function cdhist {
   [ "$1" = ++ ] && shift && { cdsub 4 . "$@"; return; }
   [ -x /bin/nawk ] && awk=nawk
   [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
-  cdselect "$nb" "$($awk '$0 == pwd {next} $0 ~ gr {n++;sub("^"hom,"~");print;'$first'}' gr="$gr" pwd="$PWD" nb=$nb hom=$HOME $cdhf)"
+  cdselect "$nb" "$($awk '$0 == pwd {next} $0 ~ gr {sub("^"hom"(/|$)","~/");print;'$first'}' gr="$gr" pwd="$PWD" hom=$HOME $cdhf)"
 }
 [ "$ZSH_VERSION" ] && {
   function _zle_do {
