@@ -232,9 +232,9 @@ function cdhist {
 # cd autocompletion
 # expand arg without alias expansion
 _cdhist_cd() {
-  typeset row col var word="$2" dir=$(eval printf %s "$2") IFS=$' \t\n' longword
+  typeset row col var word="$2" dir=$(eval printf %s "$2") IFS=$' \t\n' ts='~/' hs="$HOME/" longword
   # use bash_completion _cd or limited cdcomplete
-  dir="${dir/#$HOME/\~}"
+  dir="${dir/#$hs/$ts}"
   COMP_WORDS=( cd "$dir" )
   COMP_LINE=$(printf '%s ' "${COMP_WORDS[@]}")
   COMP_LINE="${COMP_LINE% }"
@@ -242,7 +242,7 @@ _cdhist_cd() {
   declare -F _cd >/dev/null && _cd "$@" || {
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    dir=${dir/#\~/$HOME}
+    dir="${dir/#$ts/$hs}"
     COMP_WORDS=( cd "$dir" )
     [ "$dir" = ".." ] && dir="../"
     word="${dir##*/}"
@@ -258,7 +258,7 @@ _cdhist_cd() {
     # COMP_WORDS=( cd "$dir$word" )
   }
   [ ${#COMPREPLY[@]} = 1 ] && {
-    COMPREPLY[0]="${COMPREPLY[0]/#\~/$HOME}"
+    COMPREPLY[0]="${COMPREPLY[0]/#$ts/$hs}"
     COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
     COMPREPLY[0]="${COMPREPLY[0]%/}/"
     return 0
@@ -272,7 +272,7 @@ _cdhist_cd() {
     tput cuf $((col-1)) >&2
     return 1
   }
-  COMPREPLY=( "${COMPREPLY[@]/#$HOME/\~}" )
+  COMPREPLY=( "${COMPREPLY[@]/#$hs/$ts}" )
   # longest common prefix
   longword="$(printf "%s\n" "${COMPREPLY[@]}"|sed -e '$!{N;s/^\(.*\).*\n\1.*$/\1\n\1/;D;}')"
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
@@ -282,12 +282,12 @@ _cdhist_cd() {
   IFS=$' \t\n'
   tput cuf $((col-1)) >&2
   [ "${COMPREPLY[0]}" ] && {
-    COMPREPLY[0]="${COMPREPLY[0]/#\~/$HOME}"
+    COMPREPLY[0]="${COMPREPLY[0]/#$ts/$hs}"
     COMPREPLY[0]="${COMPREPLY[0]//\/\//\/}"
     COMPREPLY[0]="${COMPREPLY[0]%/}/"
     return 0
   }
-  longword=${longword/#\~/$HOME}
+  longword="${longword/#$ts/$hs}"
   compopt +o filenames -o nospace 2>/dev/null
   [ "$2" != "$longword" ] && COMPREPLY=( "$longword" ) && return 0
   # bash 5+ : COMPREPLY must be empty else next tab completion will be COMP_TYPE=63 and COMPREPLY will be ignored
