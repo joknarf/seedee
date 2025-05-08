@@ -86,7 +86,7 @@ function cdselect
   [ "$_cdpr" ] && {
     tput cuu1 >&2
   }
-  [[ "$dir"= \~ || "$dir" = \~/* ]] && dir="$HOME"${dir#\~}
+  [[ $dir = \~ || $dir = \~/* ]] && dir="$HOME"${dir#\~}
   [ "$dir" ] && cdpush "$dir"
 }
 
