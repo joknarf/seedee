@@ -91,7 +91,7 @@ $ cdl <pat>...
 `cd - <opts>` `cd -- <opts>` `cd + <opts>` `cd ++ <opts>` are aliases to `cd- cd-- cd+ cd++`
 
 
-# environment variables
+## environment variables
 
 |Variable     | Description                                                       |
 |-------------|-------------------------------------------------------------------|
