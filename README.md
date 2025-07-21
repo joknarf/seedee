@@ -12,17 +12,17 @@ Compatibility : bash / ksh / zsh
 
 for a complete next-gen shell experience, see also these projects:
 * [nerdps1](https://github.com/joknarf/nerdps1) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
-* [redo](https://github.com/joknarf/redo) : replacement of shell history command search (Ctrl+R or Esc+/) with interactive menu
+* [redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl</kbd><kbd>R</kbd> or <kbd>Esc</kbd><kbd>/</kbd>) with interactive menu
 * [complete-ng](https://github.com/joknarf/complete-ng) : nextgen bash completion with interactive menu
 
 ![demo](https://github.com/joknarf/cdhist/assets/10117818/ad3dc445-ba78-401e-9e46-ca87e73fdb3b)
 
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
-  * default key binding with <kbd>Shift</kbd>+<kbd>Arrows</kbd> or <kbd>Ctrl</kbd>+<kbd>Arrows</kbd> (can be overridden using CD*BIND variables)
+  * default key binding with <kbd>Shift</kbd><kbd>Arrows</kbd> or <kbd>Ctrl</kbd><kbd>Arrows</kbd> (can be overridden using CD*BIND variables)
 
 <div align="center">
  
-|Left                     | Up/Down                             | Right                       |
+| Left                    | Up/Down                             | Right                       |
 |:-----------------------:|:-----------------------------------:|:---------------------------:|
 |                         |  previous dir in history            |                             |
 |                         | <img width="50px" src="https://github.com/joknarf/cdhist/assets/10117818/10ac2573-49fc-4ed5-8a6e-cce931c55ae2">| |
@@ -30,15 +30,15 @@ for a complete next-gen shell experience, see also these projects:
 |  parent dir (..)         | dir history browser                | dir browser                 |
 
 directory pattern can be put on command line before hitting shortcut to filter result  
-putting on command line : `work` and hitting <kbd>Shift</kbd>+<kbd>⇧</kbd> will bring you to last visited directory containing `work`
+putting on command line : `work` and hitting <kbd>Shift</kbd><kbd>⇧</kbd> will bring you to last visited directory containing `work`
 
-|key                                           | action                                               |
+| key                                          | action                                               |
 |----------------------------------------------|------------------------------------------------------|
-|<kbd>Shift</kbd>+<kbd>⇩</kbd>                 | cd history menu                                      |
-|<kbd>Shift</kbd>+<kbd>⇧</kbd>                 | return to last directory in history matching pattern |
-|<kbd>Shift</kbd>+<kbd>⇨</kbd>                 | navigate from current directory                      |
-|<kbd>Shift</kbd>+<kbd>⇦</kbd>                 | go to parent dir (cd ..)                             |
-|<kbd>Ctrl</kbd>+<kbd>Shift</kbd><kbd>⇩</kbd>  | search directories matching pattern in locate db     |
+|<kbd>Shift</kbd><kbd>⇩</kbd>                 | cd history menu                                      |
+|<kbd>Shift</kbd><kbd>⇧</kbd>                 | return to last directory in history matching pattern |
+|<kbd>Shift</kbd><kbd>⇨</kbd>                 | navigate from current directory                      |
+|<kbd>Shift</kbd><kbd>⇦</kbd>                 | go to parent dir (cd ..)                             |
+|<kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>⇩</kbd>  | search directories matching pattern in locate db     |
 
 </div>
 
@@ -55,13 +55,13 @@ putting on command line : `work` and hitting <kbd>Shift</kbd>+<kbd>⇧</kbd> wil
 |<kbd>Home</kbd>                 | select first item                                     | 
 |<kbd>⇨</kbd>                    | browse selected directory                             |
 |<kbd>⇦</kbd>                    | browse parent directory                               |
-|<kbd>Shift</kbd>+<kbd>⇨</kbd>   | browse selected directory with subdirectories depth 4 |
-|<kbd>Shift</kbd>+<kbd>⇦</kbd>   | back to only show subdirectories depth 1              |
-|<kbd>Shift</kdb>+<kbd>⇩</kbd>/<kbd>PgUp</kbd>/<kbd>Ctl</kbd>+<kbd>F</kbd>| next page    |
-|<kbd>Shift</kdb>+<kbd>⇧</kbd>/<kbd>PgDn</kbd>/<kbd>Ctl</kbd>+<kbd>B</kbd>| previous page|
+|<kbd>Shift</kbd><kbd>⇨</kbd>   | browse selected directory with subdirectories depth 4 |
+|<kbd>Shift</kbd><kbd>⇦</kbd>   | back to only show subdirectories depth 1              |
+|<kbd>Shift</kbd><kbd>⇩</kbd>/<kbd>PgUp</kbd>/<kbd>Ctl</kbd><kbd>F</kbd>| next page    |
+|<kbd>Shift</kbd><kbd>⇧</kbd>/<kbd>PgDn</kbd>/<kbd>Ctl</kbd><kbd>B</kbd>| previous page|
 |<kbd>Del</kbd>/<kbd>F8</kbd>    | delete directory entry in history                     |
 |<kbd>Esc</kbd>                  | exit                                                  |
-|<kbd>Ctrl</kbd>+<kbd>A</kbd>    | use all screen to display menu                        |
+|<kbd>Ctrl</kbd><kbd>A</kbd>    | use all screen to display menu                        |
 |<kbd>Enter</kbd>/<kbd>Tab</kbd> | go to directory                                       |
 
 * filter pattern can be applied entering text
