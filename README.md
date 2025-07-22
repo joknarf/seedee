@@ -11,6 +11,7 @@ Compatibility : bash / ksh / zsh
 * cd autocompletion with interactive menu (bash)
 
 for a complete next-gen shell experience, see also these projects:
+
 * [nerdps1](https://github.com/joknarf/nerdps1) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
 * [redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl</kbd><kbd>R</kbd> or <kbd>Esc</kbd><kbd>/</kbd>) with interactive menu
 * [complete-ng](https://github.com/joknarf/complete-ng) : nextgen bash completion with interactive menu
