@@ -71,7 +71,7 @@ putting on command line : `work` and hitting <kbd>Shift</kbd><kbd>▲</kbd> will
 * selection can be done entering item number
 
 
-# usage
+## usage
 
 ```
 $ . ./seedee
