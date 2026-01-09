@@ -14,13 +14,24 @@ Compatibility : bash / ksh / zsh
   * directly from command line without any cd command using shift-arrow keys (bash/zsh)
 * cd autocompletion with interactive menu (bash)
 
+![demo](https://github.com/joknarf/cdhist/assets/10117818/ad3dc445-ba78-401e-9e46-ca87e73fdb3b)
+
+## install
+
+You can install through shell plugin manager like the famous [thefly](https://github.com/joknarf/thefly) (plugin/dotfiles manager and teleporter)
+
+```
+fly add joknarf/seedee
+```
+
 for a complete next-gen shell experience, see also these projects:
 
-* [nerdps1](https://github.com/joknarf/nerdps1) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
+* [shell-ng](https://github.com/joknarf/shell-ng) : compilation of joknarf shell plugins which include seede and the following
+* [nerdp](https://github.com/joknarf/nerdp) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
 * [redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl</kbd><kbd>R</kbd> or <kbd>Esc</kbd><kbd>/</kbd>) with interactive menu
 * [complete-ng](https://github.com/joknarf/complete-ng) : nextgen bash completion with interactive menu
 
-![demo](https://github.com/joknarf/cdhist/assets/10117818/ad3dc445-ba78-401e-9e46-ca87e73fdb3b)
+## key binding
 
 * using bash/zsh in emacs or vi mode, key binding is available as shortcuts:
   * default key binding with <kbd>Shift</kbd><kbd>Arrows</kbd> or <kbd>Ctrl</kbd><kbd>Arrows</kbd> (can be overridden using CD*BIND variables)
@@ -35,7 +46,8 @@ for a complete next-gen shell experience, see also these projects:
 |  parent dir (..)         | dir history browser                | dir browser                 |
 
 directory pattern can be put on command line before hitting shortcut to filter result  
-putting on command line : `work` and hitting <kbd>Shift</kbd><kbd>▲</kbd> will bring you to last visited directory containing `work`
+putting on command line : `work` and hitting <kbd>Shift</kbd><kbd>▲</kbd> will bring you to last visited directory containing `work`  
+(all <kbd>Shift</kbd><kbd>Arrow</kbd> are also binded to <kbd>Ctrl</kbd><kbd>Arrow</kbd>)
 
 | key                                         | action                                               |
 |---------------------------------------------|------------------------------------------------------|
