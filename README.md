@@ -29,7 +29,7 @@ for a complete next-gen shell experience, see also these projects:
 * [shell-ng](https://github.com/joknarf/shell-ng) : compilation of joknarf shell plugins which include seede and the following
 * [nerdp](https://github.com/joknarf/nerdp) : auto-transportable dynamic PS1 prompt (you can see it in the demo)
 * [redo](https://github.com/joknarf/redo) : replacement of shell history command search (<kbd>Ctrl</kbd><kbd>R</kbd> or <kbd>Esc</kbd><kbd>/</kbd>) with interactive menu
-* [complete-ng](https://github.com/joknarf/complete-ng) : nextgen bash completion with interactive menu
+* [complete-ng](https://github.com/joknarf/complete-ng) : nextgen bash/zsh <kbd>Tab</kbd> completion with interactive menu
 
 ## key binding
 
