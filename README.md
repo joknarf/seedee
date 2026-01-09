@@ -18,7 +18,7 @@ Compatibility : bash / ksh / zsh
 
 ## install
 
-You can install through shell plugin manager like the famous [thefly](https://github.com/joknarf/thefly) (plugin/dotfiles manager and teleporter)
+You can install through a shell plugin manager like the famous [thefly](https://github.com/joknarf/thefly) (plugin/dotfiles manager and teleporter)
 
 ```
 fly add joknarf/seedee
