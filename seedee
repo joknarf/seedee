@@ -80,7 +80,7 @@ function cddelete
 
 function cdselect
 {
-  typeset dir nb="$1" filter="$3"
+  typeset dir nb="$1" filter="$3" t l
   [ "$_cdpr" ] && {
     [ "$_cdpr" = 1 ] && [ "$BASH" ] && tput el >&2
     printf "\n" >&2
