@@ -37,7 +37,7 @@ touch ${CDHISTFILE:=~/.cd_history}
   : ${CDLBIND:='\e*'}
   : ${CDDOTBIND:='\e;'}
 }
-: ${CDHISTBIND:='\e[1;2B \e[1;5B \e:' }
+: ${CDHISTBIND:='\e[1;2B \e[1;5B \e:'}
 : ${CDLBIND:='\e[1;6B'}
 : ${CDDOTBIND:='\e[1;2C \e[1;5C'}
 : ${CDUPBIND:='\e[1;2D \e[1;5D'}
