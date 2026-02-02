@@ -279,8 +279,8 @@ _cdhist_cd() {
   [ ${#COMPREPLY[@]} = 0 ] && {
     printf '\nNot found !\r'
     sleep 0.2
-    tput el
-    tput cuu1
+    tput el >&2
+    tput cuu1 >&2
     tput cuf $((col-1)) >&2
     return 1
   }
