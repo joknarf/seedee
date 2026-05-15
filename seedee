@@ -53,7 +53,7 @@ function cdpush {
   typeset cdhf=${CDHISTFILE:-~/.cd_history} dir
   case "$1" in 
     --) shift; cdhist "$@"; return $?;;
-    -)  [ "$2" ] && { cdhist "$@"; return $?; };;
+    -)  cdhist "$@"; return $?;;
     +)  shift; cdsub 1 . "$@"; return $?;;
     ++) shift; cdsub 4 . "$@"; return $?;;
   esac
@@ -92,7 +92,7 @@ function cdselect
     [ "$_cdpr" = 1 ] && [[ "$BASH_VERSION" = @(3.*|4.[0-3].*) ]] && {
       t=${PS1//$'\n'/}
       l=$(( ${#PS1} - ${#t} ))
-      [ "$l" -gt 0 ] && tput cuu $l >&2
+      [ "$l" -gt 0 ] && _tput cuu $l >&2
     }
   }
   [[ $dir = \~ || $dir = \~/* ]] && dir="$HOME"${dir#\~}
@@ -241,7 +241,7 @@ function cdhist {
 # cd autocompletion
 # expand arg without alias expansion
 _cdhist_cd() {
-  typeset row col var word="$2" dir=$(eval printf %s "$2") IFS=$' \t\n' ts='~/' hs="$HOME/" longword
+  typeset row col word="$2" dir=$(eval printf %s "$2") IFS=$' \t\n' ts='~/' hs="$HOME/" longword
   # use bash_completion _cd or limited cdcomplete
   dir="${dir/#$hs/$ts}"
   COMP_WORDS=( cd "$dir" )
@@ -290,7 +290,7 @@ _cdhist_cd() {
   # [ ! "$COMP_TYPE" = 63 ]   && return #tab-tab but... tab: COMP_TYPE=9
   printf "\r" >&2
   IFS=$'\n'
-  COMPREPLY=( "$(_cdpr=2 cdselect $CDNBDIRS "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$longword")" )
+  COMPREPLY=( "$(_cdpr=2 cdselect "$CDNBDIRS" "$(printf "%s\n" "${COMPREPLY[@]}"|sort -u)" "$longword")" )
   IFS=$' \t\n'
   _tput cuf $((col-1)) >&2
   [ "${COMPREPLY[0]}" ] && {
@@ -325,7 +325,7 @@ function cdsub {
   gr="${gr%/}"
   printf "%s" " Searching directories..." >&2
   cdselect "$CDNBDIRS" "$(find -L "$orig" -xdev -mindepth 1 -maxdepth "$depth" '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
-    sort -u |grep -- "$gr" 2>/dev/null;printf '\e[25D\e[K'>&2)" #_tput breaks old ksh
+    sort -u |grep -- "$gr" 2>/dev/null;printf '\e[25D\e[K' >&2)" #_tput breaks old ksh
 }
 
 # use locate to get directories
