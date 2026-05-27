@@ -85,7 +85,7 @@ function cdselect
     [ "$_cdpr" = 1 ] && [ "$BASH" ] && _tput el >&2
     printf "\n" >&2
   }
-  dir="$(selector -P "$CDPOWERLINE" -m "$nb" -p cd -k _cd_keys -F "$filter" -i "$2")"
+  dir="$(selector -P "$CDPOWERLINE" -m "$nb" -k _cd_keys -p cd -o dirnames -F "$filter" -i "$2")"
   [ "$_cdpr" ] && {
     _tput cuu1 >&2
     # bash 3/4 bug repeating prompt/command
@@ -99,65 +99,12 @@ function cdselect
   [ "$dir" ] && cdpush "$dir"
 }
 
-_cdbrowse() {
-  typeset dir="$1" depth=${2:-1}
-
-  [[ $dir = \~* ]] && dir="$HOME"${dir#\~}
-  dir="${dir#../${PWD##*/}}"
-  : ${dir:=.}
-  $(\cd "$dir" >/dev/null 2>&1) || return
-  [ "$depth" = 4 ] && printf "Searching directories..." >&2
-  _items="$(find -L "$dir" -xdev -mindepth 1 -maxdepth "$depth" '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print 2>/dev/null|\
-    sed -e s"#^$HOME/#\~/#"|sort)"
-  _items_ori="$_items"
-}
-
 # selector custom keys
 _cd_keys()
 {
   typeset k="$1" dir="${_aitems[$_nsel]}"
 
   case "$k" in
-    $'\t') # tab
-      selected="$dir"
-      return 1
-    ;;
-    '[C'|OC) # right
-      _last_nsel=$_nsel
-      _cdbrowse "$dir"
-      [ "$_items" ] || _items="${dir%/}/"
-      return 0
-    ;;
-    '[D'|OD) # left    
-      [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
-      [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
-      : ${dir:=/}
-      [ "$(\cd "$dir" >/dev/null;pwd)" = / ] && dir=/
-      case "$dir" in
-        .)   dir='..';;
-        *(../)..|..) dir="$dir/..";;
-        */*) dir="${dir%/*}";: ${dir:=/};;
-        *) dir='.';;
-      esac
-      _cdbrowse "$dir"
-      _force_nsel=$_last_nsel
-      unset _last_nsel
-      return 0
-    ;;
-    '[1;2C') # shift right
-      [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
-      [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
-      : ${dir:=/}
-      _cdbrowse "$dir" 4
-      return 0
-    ;;
-    '[1;2D') # shift left
-      [[ "$dir" = \~* ]] && dir="$HOME"${dir#\~}
-      [[ "$dir" = */* ]] && dir="${dir%/*}" || dir="."
-      : ${dir:=/}
-      _cdbrowse "$dir" 1
-      return 0
-    ;;
     '[19~'|$'\x04'|'[3~') # F8 Ctl-D Del
       cddelete "$dir"
     ;;
@@ -241,37 +188,24 @@ function cdhist {
 # expand arg without alias expansion
 # use bash_completion _cd or limited cdcomplete
 _cdhist_cd() {
-  typeset row col word="${COMP_WORDS[1]}" dir IFS=$' \t\n' ts='~/' hs="$HOME/" longword
+  typeset row col word="${COMP_WORDS[1]}" dir IFS=$' \t\n' ts='~/' hs="$HOME/" longword prefix
   [ "$COMP_CWORD" = 1 ] || return 1
-  [[ "$word" = @($|~)[a-zA-Z0-9_/]* ]] && dir="$(eval printf %s "$word")"
-  [ "$dir" ] && {
-    dir="${dir/#$hs/$ts}"
-    COMP_WORDS=( "$1" "$dir" )
-    COMP_LINE="$(printf '%s ' "${COMP_WORDS[@]}")"
-    COMP_LINE="${COMP_LINE% }"
-    COMP_POINT=${#COMP_LINE}
-  }
   if declare -F _cd >/dev/null; then
     _cd "$1" "${COMP_WORDS[1]}"
   else
     type compopt >/dev/null 2>&1 && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
-    dir="${dir/#$ts/$hs}"
-    COMP_WORDS=( cd "$dir" )
-    [ "$dir" = ".." ] && dir="../"
+    [ "$word" = ".." ] && word="../"
+    _path_expand "$word";dir="$_path_expand"
+    [[ "$word" = */* ]] && prefix="${word%/*}/" 
     word="${dir##*/}"
     [[ "$dir" = */* ]] && dir="${dir%/*}" || dir='.'
     : ${dir:=/}
     IFS=$'\n'
     set -f
-    COMPREPLY=( $(\cd "$dir" >/dev/null 2>&1 && compgen -d -- "$word") ) 
+    COMPREPLY=( $(\cd "$dir" >/dev/null 2>&1 && compgen -d -P "$prefix" -- "$word") ) 
     set +f
     IFS=$' \t\n'
-    [ ! "${COMPREPLY[0]}" ] && COMPREPLY=() && return
-    dir="${dir%/}/"
-    [ "$dir" = ./ ] && [[ ${COMP_WORDS[1]} != ./* ]] && dir=""
-    COMPREPLY=( "${COMPREPLY[@]/#/$dir}" )
-    # COMP_WORDS=( cd "$dir$word" )
   fi
   [ ${#COMPREPLY[@]} = 1 ] && {
     COMPREPLY[0]="${COMPREPLY[0]/#$ts/$hs}"
@@ -328,8 +262,8 @@ function cdsub {
   [ "$1" ] && gr=$($awk 'BEGIN{OFS=".*";for(i=1;i<ARGC;i++) $i=ARGV[i];print}' "$@")
   gr="${gr%/}"
   printf "%s" " Searching directories..." >&2
-  cdselect "$CDNBDIRS" "$(find -L "$orig" -xdev -mindepth 1 -maxdepth "$depth" '(' -name '.?*' -prune -o -name '__pycache__' -prune ')' -o -type d -print |\
-    sort -u |grep -- "$gr" 2>/dev/null;printf '\e[25D\e[K' >&2)" #_tput breaks old ksh
+  cdselect "$CDNBDIRS" "$(find -L "$orig" -xdev -mindepth 1 -maxdepth "$depth" -type d -print 2>/dev/null|\
+    sort -u |grep -- "$gr" 2>/dev/null|sed -e 's#^\./##';printf '\e[25D\e[K' >&2)" #_tput breaks old ksh
 }
 
 # use locate to get directories
@@ -508,6 +442,7 @@ alias cd++='cdsub 4 .'
 alias cdl=cdlocate
 _cdbind
 [ "$CDCOMPLETE" = y ] && cdcomplete
+
 ### selector from https://github.com/joknarf/selector
 # selector menu
 # Author: Franck Jouvanceau
@@ -515,6 +450,7 @@ _cdbind
 # Icons for -o filenames, can be overriden using env variables to fit terminal font
 : "${SELECTOR_FOLDER_ICON:=}" # 🖿 🗀 📁 📂 🖿        
 : "${SELECTOR_FILE_ICON:=}" #  🗎            🗋 🖹   📄
+: "${SELECTOR_LINK_ICON:=}"
 : "${SELECTOR_CASEI:=false}"
 : "${SELECTOR_POWERLINE:=y}"
 : "${SELECTOR_COL_PROMPT:=30;90;180}" # blue
@@ -584,8 +520,11 @@ _menuprompt()
 _showmenu()
 {
   typeset item icon fpath comment
-  typeset -i i min max maxiw maxw maxcw lines w size
+  typeset -i i min max maxiw maxw maxcw w size
 
+  _nsel="${1:-$_nsel}"
+  ((_nsel < 1)) && _nsel=1
+  ((_nsel >= nbitems)) && ((_nsel=nbitems))
   _menuprompt
   lines=${_maxlines:-$LINES}
   ((lines >= LINES)) && ((lines=LINES-1))
@@ -600,6 +539,7 @@ _showmenu()
     ((${#item} > maxw)) && maxw=${#item}
   done
   ((maxw+=2))
+  [ "$_sel_option" ] && ((maxw+=3))
   w=${#nbitems}
   ((maxiw=COLUMNS-w-4))
   ((maxiw<0)) && maxiw=0
@@ -614,10 +554,11 @@ _showmenu()
       item="${item%%$'\t'*}"
     }
     icon=''
-    [ "$_sel_option" = filenames ] && {
-      [[ "$item" = \~/* ]] && fpath="$HOME/"${item#\~/} || fpath="$item"
-      if [ -d "$fpath" ] ;then icon="$SELECTOR_FOLDER_ICON "
-      else [[ -e "$fpath" || -L "$fpath" ]] && icon="$SELECTOR_FILE_ICON ";fi
+    [ "$_sel_option" ] && {
+      _path_expand "$item"
+      if [ -L "$_path_expand" ]; then icon="$SELECTOR_LINK_ICON "
+      elif [ -d "$_path_expand" ] ;then icon="$SELECTOR_FOLDER_ICON "
+      else [ -e "$_path_expand" ] && icon="$SELECTOR_FILE_ICON ";fi
     }
     if ((_nsel == i)); then
       printf "$disp_item_sel" $w $i $maxw "$icon${item:0:$maxiw}" "${comment:0:$maxcw}"
@@ -632,16 +573,6 @@ _showmenu()
   _tput ed
   _tput cuu $size
   printf "\r" # begin of line
-}
-
-_select()
-{
-  typeset newsel="$1"
-
-  ((_nsel=newsel))
-  ((_nsel <1 )) && _nsel=1
-  ((_nsel >= nbitems)) && _nsel=$nbitems
-  _showmenu
 }
 
 _items_split()
@@ -677,9 +608,101 @@ _readkey()
   #printf "%s" "$key"
 }
 
+_path_expand() {
+  _path_expand="$1" _path_fprefix='' _path_rprefix=''
+  [[ $1 =~ ^[~$][A-Za-z0-9_]*(/|$) ]] && {
+    _path_fprefix="${1%%/*}"
+    _path_rprefix="$(IFS=;eval printf %s ${_path_fprefix:0:1}${_path_fprefix:1})"
+    _path_expand="$_path_rprefix${1#$_path_fprefix}"
+  }
+}
+
+_dirbrowse() {
+  typeset dir="$1" depth=${2:-1}
+  dir="${dir#../${PWD##*/}}"
+  : ${dir:=.}
+  $(\cd "$dir" >/dev/null 2>&1) || return 3
+  [ "$depth" = 4 ] && printf "Searching directories..." >&2
+  _items="$(find -L "$dir" -xdev -mindepth 1 -maxdepth "$depth" "${_find_type[@]}" -print 2>/dev/null|\
+    sed -e "s#^$_path_rprefix#$_path_fprefix#" -e s"#^$HOME/#\~/#" -e 's#^\./##' |sort)"
+  [ "$_items" ] && _items_ori="$_items" && return 0
+  _items="$_items_ori"
+  return 3
+}
+
+
+_file_keys() {
+  typeset k="$1" item="${_aitems[$_nsel]}"
+  _path_expand "$item"
+  item="$_path_expand"
+  case "$k" in
+    $'\t') # tab
+      selected="$item"
+      return 1
+    ;;
+    '[C'|OC) # right
+      [ ! "$filter" ] && _last_nsel=$_nsel
+      _dirbrowse "$item"
+      return $?
+    ;;
+    '[D'|OD) # left
+      _path_rprefix=''
+      _path_fprefix=''
+      [[ "$item" = */* ]] && item="${item%/*}" || item="."
+      : ${item:=/}
+      case "$item" in
+        .) item='..';;
+        ../*|..) item="$item/..";;
+        */*) item="${item%/*}";: ${item:=/};;
+        *) item='.';;
+      esac
+      [ "$(\cd "$item" >/dev/null;pwd)" = / ] && item=/
+      _dirbrowse "$item"
+      _force_nsel=$_last_nsel
+      unset _last_nsel
+      return 0
+    ;;
+    '[1;2C') # shift right
+      [[ "$item" = */* ]] && item="${item%/*}" || item="."
+      : ${item:=/}
+      _dirbrowse "$item" 4
+      return 0
+    ;;
+    '[1;2D') # shift left
+      [[ "$item" = */* ]] && item="${item%/*}" || item="."
+      : ${item:=/}
+      _dirbrowse "$item" 1
+      return 0
+    ;;
+    '²'|'OP') # F1
+      _items=$(printf "%s\n" "${_aitems[@]}"|grep -E -v '^\.[^/]|/\.')
+      [ "$_items" ] || return 1
+      return 0
+    ;;
+    'OR') # F3
+      _force_nsel=$_nsel
+      [ -r "$item" ] && [ -f "$item" ] || return 0
+      exec <&1
+      LESS='-+EX' ${PAGER:-less} "$item"
+      _tput civis
+      return 0
+    ;;
+    'OS') # F4
+      _force_nsel=$_nsel
+      [ -r "$item" ] && [ -f "$item" ] || return 0
+      exec <&1
+      ${EDITOR:-vi} "$item"
+      _tput civis
+      return 0
+    ;;
+  esac
+  return 2
+}
+
 _domenu()
 {
   typeset o=n _force_nsel
+  typeset -i lines
   _nsel=''
   printf "\r"
   _tput el
@@ -702,33 +725,34 @@ _domenu()
   while true
   do
     _readkey $o #$key
-    [ "$_keyfunc" ] && { # custom key control
-      $_keyfunc "$key" # 0: already managed / 1: managed exit / 2: default / 3: skip default
-      case "$?" in
-        0)
-          _items_split "."
-          filter=""
-          nbitems=${#_aitems[@]}
-          _select "${_force_nsel:-1}"
-          _force_nsel=''
-          continue;;
-        1) break;;
-        3) continue;;
-      esac
-    }
+    e=2
+    [ "$_sel_option" ] && { _file_keys "$key" ; e=$?; }
+    [ "$e" = 2 ] && [ "$_keyfunc" ] && { $_keyfunc "$key"; e=$?; }
+    # 0: already managed / 1: managed exit / 2: default / 3: skip default
+    case "$e" in
+      0)
+        _items_split "."
+        filter=""
+        nbitems=${#_aitems[@]}
+        _showmenu "${_force_nsel:-1}"
+        _force_nsel=''
+        continue;;
+      1) break;;
+      3) continue;;
+    esac
     case "$key" in
       '[A'|OA) #up
-        filter='';_select "_nsel-1";;
+        filter='';_showmenu $((_nsel-1));;
       '[B'|OB) #down
-        filter='';_select "_nsel+1";;
+        filter='';_showmenu $((_nsel+1));;
       '[H'|'[D'|OD|'[1;5H'|'[1;2D') #home or [shift] arrowleft
-        filter='';_select "1";;
+        filter='';_showmenu 1;;
       '[F'|'[C'|OC|'[1;5F'|'[1;2C') #end or [shift] arrowright
-        filter='';_select "nbitems";;
+        filter='';_showmenu "$nbitems";;
       '[6~'|$'\x06'|'[1;2B') #pagedn Ctl-F shift-down
-        filter='';_select "_nsel+lines-1";;
+        filter='';_showmenu $((_nsel+lines-1));;
       '[5~'|$'\x02'|'[1;2A') #pageup Ctl-B shift-up
-        filter='';_select "_nsel-lines+1";;
+        filter='';_showmenu $((_nsel-lines+1));;
       '[19~'|$'\x04'|'[3~') # F8 Ctl-D delete
         unset "_aitems[$_nsel]"
         [ "$ZSH_VERSION" ] && _aitems=("${(@)_aitems[1,$_nsel-1]}" "${(@)_aitems[$_nsel+1,$nbitems]}") ||\
@@ -736,7 +760,7 @@ _domenu()
         nbitems=${#_aitems[@]}
         _tput ed
         [ "$nbitems" = 0 ] && break
-        filter='';_select "$_nsel";;
+        filter='';_showmenu "$_nsel";;
       $'\x7f'|$'\x08') #backspace
         filter="${filter%?}"
         _items="$_items_ori"
@@ -785,7 +809,7 @@ function selector
   typeset prompt filter
   typeset bg="\e[48;2;" fg="\e[38;2;" pl=""
   typeset wfg="$fg${SELECTOR_COL_TEXT}m"
-  typeset _items _aitems _maxlines _autofilter _keyfunc _sel_option _nsel _items_ori disp_item_sel disp_item disp_form key nbitems
+  typeset _items _aitems _maxlines _autofilter _keyfunc _sel_option _nsel _items_ori disp_item_sel disp_item disp_form key nbitems _find_type _path_expand _path_fprefix _path_rprefix e
   prompt='select'
   selected=''
   _maxlines=''
@@ -821,6 +845,7 @@ function selector
         ;;
       -o|--option)
         [ "$2" ] && _sel_option="$2" || return 1
+        [ "$_sel_option" = dirnames ] && _find_type=(-type d) || _find_type=()
         ;;
       *)
         printf "usage: selector [-p <prompt>] -i <items>|-f <itemfile> [-P <y|n>] [-k <keyfunc>]\n"
@@ -854,5 +879,4 @@ function selector
 [[ "$LANG" = *UTF-8 ]] && __selector_lc="$LANG" || {
   type locale >/dev/null 2>/dev/null && locale -a |grep -iq "en_US.UTF-*8" && __selector_lc=en_US.UTF-8 || __selector_lc=C.UTF-8
 }
-
 :
