@@ -92,7 +92,6 @@ putting on command line : `work` and hitting <kbd>Shift</kbd><kbd>▲</kbd> will
 ## usage
 
 ```
-$ . ./seedee
 $ cd <dir>
 => change to <dir> and add <dir> to $CDHISTFILE
 $ cd --
